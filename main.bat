@@ -36,7 +36,6 @@ rem PASSWORD PROTECTION --------------------------
 :Password
 if exist "%~dp0files\PasswordCorrect.txt" goto start
 
-
 :Passwordcheck
 title Password
 mode 55,3
@@ -44,8 +43,7 @@ cls
 color 07
 echo.
 set /p "pass=What's the password lil bro: "
-if not "!pass!"=="aids" goto :FAIL
-goto :end
+if not "!pass!"=="aids" goto end
 
 :FAIL
 cls
@@ -84,7 +82,6 @@ del "%temp%\%webclient%.vbs" /f /q /s >nul
 del "%temp%\response.txt" /f /q /s >nul
 mkdir "%~dp0files\"
 echo. > "%~dp0files\IPLogs.txt"
-echo. > "%~dp0files\symbols.txt"
 echo GIMME V2 password = %pass% > "%~dp0files\PasswordCorrect.txt"
 mkdir "%~dp0files\symbols"
 
@@ -134,7 +131,7 @@ mode 100,35
 title GIMME V2
 call :banner
 echo                             ╔════════════════════════════════════════╗
-echo                             ║ (1) Log Book          (4) IP Info      ║
+echo                             ║ (1) Log Book          (4) Trace IP     ║
 echo                             ║                                        ║
 echo                             ║ (2) Ip Ping           (5) My Ip        ║
 echo                             ║                                        ║
@@ -192,25 +189,26 @@ goto Doxxing
 rem FUNTIONS --------------------------------------------
 
 :update
-set gitcommit=b50f73163262e121a55ba2b2a967fd14331b7687
-set GimmeVersion=%gitcommit%/main
 set project=Gimme V2
 
-set your_update_source=https://raw.githubusercontent.com/GIGGAhacker/GIMME-V2/main
+set your_github_user=GIGGAhacker
+set your_github_repo=GIMME-V2
 
-powershell -nologo -noprofile -command "Invoke-WebRequest '%your_update_source%/updates.txt' -OutFile '%CD%\files\path\updates.txt'"
-set /p updatescommit=<"%CD%\files\path\updates.txt"
+echo Checking for updates...
+for /f %%i in ('powershell -nologo -noprofile -command "(Invoke-RestMethod -Uri 'https://api.github.com/repos/%your_github_user%/%your_github_repo%/releases/latest').tag_name"') do set latest_version=%%i
 
-if not !updatescommit! == %gitcommit% (
-    goto updatereliant
-) else (
-    echo [%project%] No updates found, starting %project%...
-    goto checks
+set your_update_source=https://github.com/%your_github_user%/%your_github_repo%/releases/download/%latest_version%/
+
+powershell -nologo -noprofile -command "Invoke-WebRequest '%your_update_source%/GIMME-New.bat' -OutFile '%CD%\files\path\GIMME-New.bat'"
+echo Download complete.
+
+if not exist "%CD%\files\path\GIMME-New.bat" (
+    echo [Error] GIMME-New.bat not found. Exiting...
+    pause
+    exit /b 1
 )
 
-:updatereliant
-powershell -nologo -noprofile -command "Invoke-WebRequest '%your_update_source%/GIMME.bat' -OutFile '%CD%\files\path\GIMME-New.bat'"
-powershell -nologo -noprofile -command "Invoke-WebRequest '%your_update_source%/changelog.txt' -OutFile '%CD%\Files\changelog.txt'"REM Changed the path to save changelog.txt in %~dp0Files\
+powershell -nologo -noprofile -command "Invoke-WebRequest '%your_update_source%/changelog.txt' -OutFile '%CD%\Files\changelog.txt'"
 
 echo [%project%] Update Downloaded, restarting...
 if exist "files\settings\update.txt" (
@@ -224,7 +222,7 @@ del "files\path\GIMME.bat"
 exit
 
 :checks
-title %project% (%GimmeVersion%)
+title %project% (%latest_version%)
 if exist "files\settings\" (
     del /f "files\path\updates.txt"
     goto welcome
@@ -234,7 +232,6 @@ if exist "files\settings\" (
 )
 
 goto start
-
 
 
 :tracedns
@@ -262,6 +259,7 @@ goto start
 
 :doxsymbols
 cls
+mode 100,35
 call :banner
 echo                              ╔══════════════════════════════╗
 echo                              ║ Type the corresponding code  ║
