@@ -138,7 +138,7 @@ echo                             ║                                        ║
 echo                             ║ (3) Doxxing Tools     (6) Trace DNS    ║
 echo                             ║                                        ║
 echo                             ╠════════════════════════════════════════╣
-echo                             ║ (0) Exit   (R) Restart    (99) Update  ║
+echo                             ║ (0) Exit  (R) Next Page   (99) Update  ║
 echo                             ╚════════════════════════════════════════╝                                 
 echo.
 echo.
@@ -153,10 +153,8 @@ if "%input%"=="5" (
 	goto start
 )
 if "%input%"=="6" goto tracedns
-if "%input%"=="r" goto start
+if "%input%"=="r" goto start2
 if "%input%"=="99" goto update
-
-
 goto start
 
 :Doxxing
@@ -168,7 +166,7 @@ echo                             ║ (1) Dox Text Conv.                     ║
 echo                             ║                                        ║
 echo                             ║ (2) Symbols                            ║
 echo                             ║                                        ║
-echo                             ║                                        ║
+echo                             ║ (3) Dox Page Maker                     ║
 echo                             ║                                        ║
 echo                             ╠════════════════════════════════════════╣
 echo                             ║ (0) Exit  (R) Main Menu   (99) Credits ║
@@ -179,14 +177,43 @@ set /p input=">> "
 if "%input%"=="0" exit
 if "%input%"=="1" goto doxtext
 if "%input%"=="2" goto doxsymbols
+if "%input%"=="3" goto doxmaker
 if "%input%"=="r" goto start
-
-
 goto Doxxing
+
+
+:start2
+cls
+mode 100,35
+title GIMME V2
+call :banner
+echo                             ╔════════════════════════════════════════╗
+echo                             ║ (1) Coming soon!                       ║
+echo                             ║                                        ║
+echo                             ║                                        ║
+echo                             ║                                        ║
+echo                             ║                                        ║
+echo                             ║                                        ║
+echo                             ╠════════════════════════════════════════╣
+echo                             ║ (0) Exit  (R) Prev. Page               ║
+echo                             ╚════════════════════════════════════════╝                                 
+echo.
+echo.
+set /p input=">> "
+if "%input%"=="0" exit
+if "%input%"=="1" goto discorselfbot
+if "%input%"=="r" goto start
+goto start2
+
+
+
 
 
 
 rem FUNTIONS --------------------------------------------
+
+
+Rem FIX THIS -----------------------------------------------------
 
 :update
 set project=Gimme V2
@@ -199,11 +226,18 @@ for /f %%i in ('powershell -nologo -noprofile -command "(Invoke-RestMethod -Uri 
 
 set your_update_source=https://github.com/%your_github_user%/%your_github_repo%/releases/download/%latest_version%/
 
-powershell -nologo -noprofile -command "Invoke-WebRequest '%your_update_source%/GIMME-New.bat' -OutFile '%CD%\files\path\GIMME-New.bat'"
+:retry_download
+powershell -nologo -noprofile -command "Invoke-WebRequest '%your_update_source%/main.bat' -OutFile '%CD%\files\path\main.bat'"
+if %errorlevel% neq 0 (
+    echo [Error] Download failed. Retrying...
+    timeout /t 5 /nobreak >nul
+    goto retry_download
+)
+
 echo Download complete.
 
-if not exist "%CD%\files\path\GIMME-New.bat" (
-    echo [Error] GIMME-New.bat not found. Exiting...
+if not exist "%CD%\files\path\main.bat" (
+    echo [Error] main.bat not found. Exiting...
     pause
     exit /b 1
 )
@@ -216,9 +250,9 @@ if exist "files\settings\update.txt" (
     echo 1 >> "files\settings\update.txt"
 )
 del "files\path\updates.txt"
-start cmd /k "GIMME-New.bat"
+start cmd /k "main.bat"
 timeout /t 3 /nobreak >nul
-del "files\path\GIMME.bat"
+del "files\path\main.bat"
 exit
 
 :checks
@@ -232,6 +266,110 @@ if exist "files\settings\" (
 )
 
 goto start
+
+rem ------------------------------------------------------------------
+
+:doxmaker
+cls
+call :banner
+echo                              ╔═════════════════════════════╗
+echo                              ║  please answer all questions║
+echo                              ╚═════════════════════════════╝
+echo.
+echo [[96mGIMME V2[0m] Hello! Enter the name of the target
+set /p targetname="[%Username%]>> "
+echo [[96mGIMME V2[0m] Do you have %targetname%'s IP? [Y or N]
+set /p y-n="[%Username%]>> "
+if "%y-n%"=="n" goto con1
+echo [[96mGIMME V2[0m] Enter %targetname%'s IP
+set /p ip="[%Username%]>> "
+:con1
+echo [[96mGIMME V2[0m] Perfect! Do you have other info on %targetname% [Y or N]
+set /p y/n="[%Username%]>> "
+if "%y/n%"=="n" goto show
+mode 100,50
+echo [[96mGIMME V2[0m] Ok. Type a combination of these numbers. Enter every number for info you have.
+echo 1 = Roblox info
+echo 2 = Discord info
+echo 3 = Zip/Postal code
+echo 4 = address
+echo 5 = credit card info
+echo 6 = phone number 
+echo 7 = photos
+echo Example (127) You have to enter the info for the numbers
+echo.
+set /p combination="[%Username%]>> "
+
+:: Handle all combinations using a loop and conditional statements
+setlocal enabledelayedexpansion
+for /L %%i in (0, 1, 6) do (
+    set "char=!combination:~%%i,1!"
+
+    if !char! equ 1 (
+        echo [[96mGIMME V2[0m] Enter Roblox username and password like "User:sadqwfsd Pass:1234"
+        set /p robloxinfo="[%Username%]>> "
+    )
+    if !char! equ 2 (
+        echo [[96mGIMME V2[0m] Enter Discord Username like "username or username#1234"
+        set /p discordname="[%Username%]>> "   
+    )
+    if !char! equ 3 (
+        echo [[96mGIMME V2[0m] Enter %targetname%'s Zip/Postal code like "90210" - that's Beverly Hills
+        set /p zip/postal="[%Username%]>> "    
+    )
+    if !char! equ 4 (
+        echo [[96mGIMME V2[0m] Enter %targetname%'s Address like "230 buckweet dr"
+        set /p address="[%Username%]>> "    
+    )
+    if !char! equ 5 (
+        echo [[96mGIMME V2[0m] Enter %targetname%'s credit card info like "1312336216123 CVV:123"
+        set /p cc="[%Username%]>> "    
+    )
+    if !char! equ 6 (
+        echo [[96mGIMME V2[0m] Enter %targetname%'s phone number like "415394824485"
+        set /p pn="[%Username%]>> "    
+    )
+    if !char! equ 7 (
+        echo [[96mGIMME V2[0m] Enter %targetname%'s pic like "link.com"
+        set /p photo="[%Username%]>> "   
+    )
+)
+
+endlocal
+
+
+
+mode 100,35
+
+:show
+cls
+echo.
+echo.
+echo [[96mGIMME V2[0m] This is the completed dox! Feel free to copy and paste this.
+echo.
+echo. 
+echo                      ██████╗  ██████╗ ██╗  ██╗██╗  ██╗███████╗██████╗ 
+echo                      ██╔══██╗██╔═══██╗╚██╗██╔╝╚██╗██╔╝██╔════╝██╔══██╗
+echo                      ██║  ██║██║   ██║ ╚███╔╝  ╚███╔╝ █████╗  ██║  ██║ 
+echo                      ██║  ██║██║   ██║ ██╔██╗  ██╔██╗ ██╔══╝  ██║  ██║ 
+echo                      ██████╔╝╚██████╔╝██╔╝ ██╗██╔╝ ██╗███████╗██████╔╝
+echo                      ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═════╝ 
+echo                         Made with github.com/GIGGAhacker/GIMME-V2
+echo.
+echo Name: %targetname%
+echo IP: %ip%
+echo Roblox Info: %robloxinfo%
+echo Discord Name: %discordname%
+echo Zip/Postal Code: %zip/postal%
+echo Address: %address%
+echo Credit Card Info: %cc%
+echo Phone Number: %pn%
+echo Photo: %photo%
+echo.
+echo.
+pause 
+goto start
+
 
 
 :tracedns
