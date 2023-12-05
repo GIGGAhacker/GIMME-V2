@@ -216,6 +216,7 @@ rem FUNTIONS --------------------------------------------
 Rem FIX THIS -----------------------------------------------------
 
 :update
+mode 100,80
 setlocal
 
 REM Set the repository URL
@@ -228,23 +229,43 @@ REM Check if the directory is a Git repository
 cd %scriptPath%
 git rev-parse --git-dir >nul 2>&1
 if errorlevel 1 (
-    echo Not a Git repository. Cloning...
+    echo [[96mGIMME V2[0m] Not a Git repository. Cloning...
     rmdir /s /q %scriptPath%
     git clone %repoURL% %scriptPath%
 ) else (
-    echo Git repository found. Pulling latest changes...
-    git pull
+    echo [[96mGIMME V2[0m] Git repository found. Checking for updates...
+    git fetch --quiet
+
+    REM Check if the update was successful
+    cd %scriptPath%
+    if exist README.md (
+        echo [[96mGIMME V2[0m] Your script is up to date
+    ) else (
+        echo [[96mGIMME V2[0m] Failed to update the script. Please check your internet connection and try again.
+        goto end
+    )
+
+    REM Check if any updates were found
+    git diff-index --quiet HEAD --
+    if errorlevel 1 (
+        REM Prompt user for update confirmation
+        echo [[96mGIMME V2[0m] Do you want to update? This will lose log data. [Y or N]
+        set /p choice= 
+        if /i "%choice%"=="Y" (
+            echo [[96mGIMME V2[0m] Updating...
+            git reset --hard HEAD
+            echo [[96mGIMME V2[0m] Update successful!
+        ) else (
+            echo [[96mGIMME V2[0m] Update canceled. Exiting...
+            goto end
+        )
+    ) else (
+        echo [[96mGIMME V2[0m] You are all up to date.
+    )
 )
 
-REM Check if the script is up to date
-if exist %scriptPath% (
-    echo Your script is up to date
-) else (
-    echo Failed to update the script. Please check your internet connection and try again.
-)
-
+:end
 endlocal
-
 pause
 goto start
 
