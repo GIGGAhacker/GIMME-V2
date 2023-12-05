@@ -215,52 +215,62 @@ rem FUNTIONS --------------------------------------------
 
 Rem FIX THIS -----------------------------------------------------
 
-:update
+@update
+@echo off
 mode 100,80
-setlocal
+setlocal enabledelayedexpansion
 
-REM Set the repository URL
-set "repoURL=https://github.com/GIGGAhacker/GIMME-V2.git"
+REM Set the GitHub repository link
+set "repoLink=https://github.com/GIGGAhacker/GIMME-V2"
 
 REM Set the path to your script
 set "scriptPath=%~dp0"
+
+REM Generate the repository URL by appending ".git" if not present
+set "repoURL=!repoLink!"
+if not "!repoURL:~-4!"=="\.git" set "repoURL=!repoURL!.git"
 
 REM Check if the directory is a Git repository
 cd %scriptPath%
 git rev-parse --git-dir >nul 2>&1
 if errorlevel 1 (
-    echo [[96mGIMME V2[0m] Not a Git repository. Cloning...
-    rmdir /s /q %scriptPath%
-    git clone %repoURL% %scriptPath%
+    echo [GIMME V2] Not a Git repository. Do you want to clone? [Y or N]
+    set /p cloneChoice= 
+    if /i "%cloneChoice%"=="y" (
+        echo [GIMME V2] Cloning...
+        rmdir /s /q %scriptPath%
+        git clone %repoURL% %scriptPath%
+    ) else (
+        echo [GIMME V2] Cloning canceled. Exiting...
+        goto end
+    )
 ) else (
-    echo [[96mGIMME V2[0m] Git repository found. Checking for updates...
+    echo [GIMME V2] Git repository found. Checking for updates...
     git fetch --quiet
 
     REM Check if the update was successful
     cd %scriptPath%
     if exist README.md (
-        echo [[96mGIMME V2[0m] Your script is up to date
-    ) else (
-        echo [[96mGIMME V2[0m] Failed to update the script. Please check your internet connection and try again.
-        goto end
-    )
-
-    REM Check if any updates were found
-    git diff-index --quiet HEAD --
-    if errorlevel 1 (
-        REM Prompt user for update confirmation
-        echo [[96mGIMME V2[0m] Do you want to update? This will lose log data. [Y or N]
-        set /p choice= 
-        if /i "%choice%"=="Y" (
-            echo [[96mGIMME V2[0m] Updating...
-            git reset --hard HEAD
-            echo [[96mGIMME V2[0m] Update successful!
+        REM Check if any updates were found
+        git diff-index --quiet HEAD --
+        if errorlevel 1 (
+            REM Prompt user for update confirmation
+            echo [GIMME V2] Do you want to update? This will lose log data. [Y or N]
+            set /p choice= 
+            if /i "%choice%"=="y" (
+                echo [GIMME V2] Updating...
+                git reset --hard HEAD
+                echo [GIMME V2] Update successful!
+            ) else (
+                echo [GIMME V2] Update canceled. Exiting...
+                goto end
+            )
         ) else (
-            echo [[96mGIMME V2[0m] Update canceled. Exiting...
-            goto end
+            echo [GIMME V2] You are all up to date.
         )
     ) else (
-        echo [[96mGIMME V2[0m] You are all up to date.
+        echo [GIMME V2] Failed to update the script. Please check your internet connection and try again.
+        goto end
     )
 )
 
@@ -268,6 +278,7 @@ if errorlevel 1 (
 endlocal
 pause
 goto start
+
 
 
 
