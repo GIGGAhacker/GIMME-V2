@@ -216,56 +216,40 @@ rem FUNTIONS --------------------------------------------
 Rem FIX THIS -----------------------------------------------------
 
 :update
-set project=Gimme V2
+setlocal
 
-set your_github_user=GIGGAhacker
-set your_github_repo=GIMME-V2
+REM Set the repository URL
+set "repoURL=https://github.com/GIGGAhacker/GIMME-V2.git"
 
-echo Checking for updates...
-for /f %%i in ('powershell -nologo -noprofile -command "(Invoke-RestMethod -Uri 'https://api.github.com/repos/%your_github_user%/%your_github_repo%/releases/latest').tag_name"') do set latest_version=%%i
+REM Set the path to your script
+set "scriptPath=%~dp0"
 
-set your_update_source=https://github.com/%your_github_user%/%your_github_repo%/releases/download/%latest_version%/
-
-:retry_download
-powershell -nologo -noprofile -command "Invoke-WebRequest '%your_update_source%/main.bat' -OutFile '%CD%\files\path\main.bat'"
-if %errorlevel% neq 0 (
-    echo [Error] Download failed. Retrying...
-    timeout /t 5 /nobreak >nul
-    goto retry_download
-)
-
-echo Download complete.
-
-if not exist "%CD%\files\path\main.bat" (
-    echo [Error] main.bat not found. Exiting...
-    pause
-    exit /b 1
-)
-
-powershell -nologo -noprofile -command "Invoke-WebRequest '%your_update_source%/changelog.txt' -OutFile '%CD%\Files\changelog.txt'"
-
-echo [%project%] Update Downloaded, restarting...
-if exist "files\settings\update.txt" (
-    break>"files\settings\update.txt"
-    echo 1 >> "files\settings\update.txt"
-)
-del "files\path\updates.txt"
-start cmd /k "main.bat"
-timeout /t 3 /nobreak >nul
-del "files\path\main.bat"
-exit
-
-:checks
-title %project% (%latest_version%)
-if exist "files\settings\" (
-    del /f "files\path\updates.txt"
-    goto welcome
+REM Check if the directory is a Git repository
+cd %scriptPath%
+git rev-parse --git-dir >nul 2>&1
+if errorlevel 1 (
+    echo Not a Git repository. Cloning...
+    rmdir /s /q %scriptPath%
+    git clone %repoURL% %scriptPath%
 ) else (
-    goto setup
-    del "files\path\updates.txt"
+    echo Git repository found. Pulling latest changes...
+    git pull
 )
 
+REM Check if the script is up to date
+if exist %scriptPath% (
+    echo Your script is up to date
+) else (
+    echo Failed to update the script. Please check your internet connection and try again.
+)
+
+endlocal
+
+pause
+timeout /t 3600 /nobreak >nul 2>&1
 goto start
+
+
 
 rem ------------------------------------------------------------------
 
