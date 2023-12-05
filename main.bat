@@ -246,7 +246,6 @@ if exist %scriptPath% (
 endlocal
 
 pause
-timeout /t 3600 /nobreak >nul 2>&1
 goto start
 
 
