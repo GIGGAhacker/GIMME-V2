@@ -10,7 +10,7 @@ import colorama
 from colorama import Fore
 from collections import Counter
 import subprocess
-
+import requests
 
 
 def password():
@@ -76,7 +76,7 @@ def main_menu():
         elif choice == "5":
             my_ip()
         elif choice == "99":
-            update()
+            update("GIGGAhacker", "GIMME-V2", "GIMMEv2.py")
 
 
 
@@ -236,16 +236,56 @@ def ip_ping(): # MAIN <-----------------
 
 
 # Updater ------------------------------
-def update():
-    
-    pass
+def print_update_header():
+    clear_screen()
+    banner()
+    print("""
+                        ╔══════════════════════════════════════╗
+                        ║  This Checks and downloads updates.  ║
+                        ╚══════════════════════════════════════╝                                 
+    """)
+
+def update(repo_owner, repo_name, script_name):
+    print_update_header()
+    print_gimme(f"Checking for updates in {repo_owner}/{repo_name}...")
+
+    # GitHub API endpoint to get the latest release information
+    api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
+
+    # Send a GET request to the GitHub API
+    response = requests.get(api_url)
+
+    # Check if the request was successful (status code 200)
+    if response.status_code == 200:
+        # Check if there are assets in the latest release
+        if 'assets' in response.json() and response.json()['assets']:
+            # Get the download URL for the latest release asset
+            download_url = response.json()['assets'][0]['browser_download_url']
+
+            # Download the latest script
+            script_content = requests.get(download_url).text
+
+            # Save the script to a file
+            with open(script_name, 'w') as script_file:
+                script_file.write(script_content)
+
+            print_update_header()
+            print_gimme(f"Successfully updated {script_name} to the latest version.")
+        else:
+            print_update_header()
+            print_gimme(f"No updates found for {script_name}. You are already using the latest version. TEST")
+    elif response.status_code == 404:
+        print_update_header()
+        print_gimme(f"No updates found for {script_name}.")
+    else:
+        print_update_header()
+        print_gimme(f"Failed to check for updates. Status code: {response.status_code}")
+    print()
+    input("Press Enter to exit...")
 
 
 
 
-
-        
-    
 
 def doxxing_tools():
     # Your doxxing tools logic here
@@ -365,6 +405,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    repository_owner = "GIGGAhacker"
-    repository_name = "GIMME-V2"
-    script_name = ".py"
+    
