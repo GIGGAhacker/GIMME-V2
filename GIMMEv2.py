@@ -59,7 +59,6 @@ def main_menu():
                              ║ (0) Exit                  (99) Update  ║
                              ╚════════════════════════════════════════╝                                 
         """)
-        Print("Updater Worked")
 
         choice = input(">> ").lower()
         
